@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0a0a12">
-    <title>EduSismos 2026 - Alerta con Geolocalización y Pánico Inmediato</title>
+    <title>EduSismos 2026 - Alerta y Geolocalización</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', Roboto, system-ui; background: #0a0a12; color: #eee; padding-bottom: 70px; }
-        /* Pantalla de alerta sísmica (sismo real/simulado) */
         .alert-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #b71c1c; z-index: 3000; display: flex; flex-direction: column;
@@ -29,11 +25,10 @@
         .safety-instructions li { list-style: none; padding-left: 1.5rem; position: relative; margin: 0.5rem 0; }
         .safety-instructions li::before { content: "⚠️"; position: absolute; left: 0; }
         .share-btn { background: white; color: #b71c1c; border: none; padding: 12px 24px; border-radius: 40px; font-weight: bold; font-size: 1rem; margin-top: 20px; cursor: pointer; }
-        /* Menú inferior */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; background: #1a1a2a; backdrop-filter: blur(10px);
             display: flex; justify-content: space-around; padding: 8px 0 10px; border-top: 1px solid #2c2c3a;
-            z-index: 1000; overflow-x: auto;
+            z-index: 1000;
         }
         .nav-item { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; color: #aaa; font-size: 0.7rem; cursor: pointer; padding: 0 10px; }
         .nav-item.active { color: #ff8a5c; transform: translateY(-2px); }
@@ -68,7 +63,6 @@
 </head>
 <body>
 
-<!-- Pantalla de alerta sísmica (sismos reales/simulados) -->
 <div id="alertOverlay" class="alert-overlay">
     <div class="magnitude-big" id="alertMagnitude">M0.0</div>
     <div class="alert-title">⚠️ ¡ALERTA SÍSMICA! ⚠️</div>
@@ -85,7 +79,6 @@
     <button class="share-btn" id="shareAlertBtn">📢 Compartir alerta</button>
 </div>
 
-<!-- Menú inferior -->
 <div class="bottom-nav">
     <div class="nav-item" data-page="home"><div class="nav-icon">🌋</div><span>Inicio</span></div>
     <div class="nav-item" data-page="custom"><div class="nav-icon">⚙️</div><span>Personalizar</span></div>
@@ -95,7 +88,6 @@
     <div class="nav-item" data-page="credits"><div class="nav-icon">👥</div><span>Créditos</span></div>
 </div>
 
-<!-- Página Inicio (simulador sísmico) -->
 <div id="homePage" class="page active-page">
     <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 15px;">
         <h1 style="font-size: 1.7rem; background: linear-gradient(135deg,#ff8a5c,#ff4d4d); -webkit-background-clip: text; background-clip: text; color: transparent;">EduSismos 2026</h1>
@@ -124,7 +116,6 @@
     <footer style="text-align:center; font-size:0.7rem;">EduSismos 2026 · Datos reales USGS</footer>
 </div>
 
-<!-- Página Personalizar sismos (educativo) -->
 <div id="customPage" class="page">
     <div class="card">
         <div class="card-title">🎚️ Simulador a medida</div>
@@ -152,7 +143,6 @@
     </div>
 </div>
 
-<!-- Página Riesgo estructural -->
 <div id="riskPage" class="page">
     <div class="card">
         <div class="card-title">🏚️ Vulnerabilidad sísmica</div>
@@ -170,7 +160,6 @@
     </div>
 </div>
 
-<!-- Página Emergencias (con contactos guardados, botón de pánico inmediato y monitoreo periódico) -->
 <div id="emergencyPage" class="page">
     <div class="card">
         <div class="card-title">📞 Números de emergencia oficiales</div>
@@ -180,7 +169,6 @@
         <div class="emergency-number"><span>🆘 Protección Civil</span><span>555 512 8000</span></div>
     </div>
 
-    <!-- Banner para guardar contactos -->
     <div class="card">
         <div class="card-title">📱 Mis contactos de emergencia</div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
@@ -192,7 +180,6 @@
         <div class="small-note">💡 Haz clic sobre cualquier contacto para enviar alerta inmediata con tu ubicación actual.</div>
     </div>
 
-    <!-- Botón de pánico inmediato (envía a TODOS los contactos guardados) -->
     <div class="card">
         <div class="card-title">🆘 PÁNICO INMEDIATO</div>
         <button id="panicButton" class="panic-btn">⚠️ ¡ALERTA! Enviar ubicación a TODOS los contactos ⚠️</button>
@@ -203,7 +190,6 @@
         </div>
     </div>
 
-    <!-- Monitoreo de ubicación periódica (8 horas) -->
     <div class="card">
         <div class="card-title">🔄 Monitoreo automático (8 horas)</div>
         <button id="startGeoMonitorBtn" class="panic-btn" style="background:#ff8c00;">📍 Iniciar monitoreo (cada 5 min)</button>
@@ -216,7 +202,6 @@
     </div>
 </div>
 
-<!-- Página Guía -->
 <div id="guidePage" class="page">
     <div class="card">
         <div class="card-title">📖 Guía didáctica</div>
@@ -228,7 +213,6 @@
     </div>
 </div>
 
-<!-- Página Créditos -->
 <div id="creditsPage" class="page">
     <div class="card">
         <div class="card-title">🏢 EduSismos 2026</div>
@@ -238,14 +222,16 @@
             <div class="team-member"><strong>👨‍💻 Jose Angel Mier Jaramillo</strong></div>
             <div class="team-member"><strong>👩‍💻 Evelyn García Ocampo</strong></div>
             <div class="team-member"><strong>👩‍💻 Kelin Roxana Guzmán Matías</strong></div>
-            <div class="team-member advisor"><strong>👩‍🏫 Asesora: Sandra Luz Villafaña Martínez</strong></div>
+            <div class="team-member advisor"><strong>👩‍🏫 Asesoras:</strong></div>
+            <div class="team-member advisor" style="margin-left:20px;">Sandra Luz Villafaña Martínez</div>
+            <div class="team-member advisor" style="margin-left:20px;">Maribel Domínguez Vargas</div>
         </div>
         <p style="text-align: center;">© 2026 EduSismos · Prevención sísmica</p>
     </div>
 </div>
 
 <script>
-    // ==================== 1. CONFIGURACIÓN SÍSMICA (original, simplificada) ====================
+    // ==================== CONFIGURACIÓN SÍSMICA ====================
     const seismicZones = [
         { name: "Pacífico (Guerrero, Oaxaca, Chiapas)", lat: 16.5, lng: -98.5, risk: "Alta", color: "#d32f2f" },
         { name: "Eje Volcánico (CDMX, Puebla, Morelos)", lat: 19.4, lng: -99.1, risk: "Alta", color: "#ff8c42" },
@@ -273,7 +259,7 @@
     let simulationStartTime = Date.now();
     let lastTriggeredTime = 0;
 
-    // Elementos DOM
+    // DOM elements
     const alertOverlay = document.getElementById('alertOverlay');
     const alertMagnitudeSpan = document.getElementById('alertMagnitude');
     const countdownDisplay = document.getElementById('countdownDisplay');
@@ -303,58 +289,298 @@
     const monitorLed = document.getElementById('monitorLed');
     const monitorStatusSpan = document.getElementById('monitorStatus');
 
-    // Funciones de sonido
-    async function playLoudAlarm() { /* mismo código original */ }
-    function stopAlarm() { /* ... */ }
+    // ==================== SONIDO ====================
+    async function playLoudAlarm() {
+        stopAlarm();
+        const type = alarmSoundType.value;
+        const useStrobe = strobeEffect.checked;
+        if(useStrobe && !strobeInterval) {
+            strobeInterval = setInterval(() => {
+                if(alertActive) {
+                    document.body.style.backgroundColor = document.body.style.backgroundColor === '#ff0000' ? '#0a0a12' : '#ff0000';
+                } else {
+                    clearInterval(strobeInterval);
+                    strobeInterval = null;
+                    document.body.style.backgroundColor = '';
+                }
+            }, 150);
+        }
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            await audioCtx.resume();
+            const masterGain = audioCtx.createGain();
+            masterGain.gain.value = 1.0;
+            const waveshaper = audioCtx.createWaveShaper();
+            const curve = new Float32Array(44100);
+            for(let i=0; i<44100; i++) {
+                const x = (i-22050)/22050;
+                curve[i] = Math.tanh(x * 2.5);
+            }
+            waveshaper.curve = curve;
+            masterGain.connect(waveshaper);
+            waveshaper.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            const duration = 10;
+            if(type === 'siren') {
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+                osc1.frequency.setValueAtTime(600, now);
+                osc1.frequency.exponentialRampToValueAtTime(1200, now+duration);
+                osc2.frequency.setValueAtTime(800, now);
+                osc2.frequency.exponentialRampToValueAtTime(1600, now+duration);
+                osc1.connect(masterGain);
+                osc2.connect(masterGain);
+                osc1.start();
+                osc2.start();
+                osc1.stop(now+duration);
+                osc2.stop(now+duration);
+                currentAlarmSound = { osc1, osc2, ctx: audioCtx };
+            } else if(type === 'beep') {
+                let count=0;
+                const beepInterval = setInterval(() => {
+                    if(!alertActive || count>=18) { clearInterval(beepInterval); return; }
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(masterGain);
+                    osc.frequency.value=880;
+                    gain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime+0.4);
+                    osc.stop(audioCtx.currentTime+0.4);
+                    count++;
+                }, 500);
+                currentAlarmSound = { interval: beepInterval, ctx: audioCtx };
+            } else if(type === 'wobble') {
+                const osc = audioCtx.createOscillator();
+                const lfo = audioCtx.createOscillator();
+                const lfoGain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 440;
+                lfo.frequency.value = 20;
+                lfoGain.gain.value = 200;
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                osc.connect(masterGain);
+                osc.start();
+                lfo.start();
+                osc.stop(now+duration);
+                lfo.stop(now+duration);
+                currentAlarmSound = { osc, lfo, ctx: audioCtx };
+            }
+            alarmTimeout = setTimeout(() => stopAlarm(), duration*1000);
+        } catch(e) {
+            console.warn("Web Audio error", e);
+            let count=0;
+            const fallbackInterval = setInterval(() => {
+                if(!alertActive || count>=20) { clearInterval(fallbackInterval); return; }
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.value = 880;
+                    gain.gain.value = 1.0;
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime+0.4);
+                    osc.stop(ctx.currentTime+0.4);
+                } catch(e) {}
+                count++;
+            }, 400);
+            currentAlarmSound = { interval: fallbackInterval };
+            alarmTimeout = setTimeout(() => stopAlarm(), 10000);
+        }
+    }
+    function stopAlarm() {
+        if(alarmTimeout) clearTimeout(alarmTimeout);
+        if(strobeInterval) { clearInterval(strobeInterval); strobeInterval=null; document.body.style.backgroundColor=''; }
+        if(currentAlarmSound) {
+            if(currentAlarmSound.interval) clearInterval(currentAlarmSound.interval);
+            if(currentAlarmSound.osc1) try{ currentAlarmSound.osc1.stop(); }catch(e){}
+            if(currentAlarmSound.osc2) try{ currentAlarmSound.osc2.stop(); }catch(e){}
+            if(currentAlarmSound.osc) try{ currentAlarmSound.osc.stop(); }catch(e){}
+            if(currentAlarmSound.lfo) try{ currentAlarmSound.lfo.stop(); }catch(e){}
+            if(currentAlarmSound.ctx) try{ currentAlarmSound.ctx.close(); }catch(e){}
+            currentAlarmSound = null;
+        }
+    }
 
+    // ==================== ALERTA PRINCIPAL ====================
     async function triggerEarthquake(magnitude, zoneName, etaSeconds, lat, lng, isReal = false, realTimeInfo = "") {
-        if (alertActive) return;
+        if(alertActive) return;
         alertActive = true;
         historyEvents.unshift({ id: Date.now(), magnitude, zone: zoneName, timestamp: new Date().toISOString(), eta: etaSeconds, isReal });
-        if (historyEvents.length > 20) historyEvents.pop();
+        if(historyEvents.length>20) historyEvents.pop();
         saveHistory();
-
         alertMagnitudeSpan.innerText = `M${magnitude.toFixed(1)}`;
         zoneAlertSpan.innerText = `📍 Zona: ${zoneName}`;
-        if (isReal && realTimeInfo) realTimeInfoSpan.innerText = realTimeInfo;
+        if(isReal && realTimeInfo) realTimeInfoSpan.innerText = realTimeInfo;
         let remaining = etaSeconds;
         countdownDisplay.innerText = `${remaining} s`;
-        if (countdownInterval) clearInterval(countdownInterval);
-        countdownInterval = setInterval(() => { remaining--; if(remaining>=0) countdownDisplay.innerText = `${remaining} s`; else { clearInterval(countdownInterval); countdownDisplay.innerText = `¡AHORA!`; } }, 1000);
+        if(countdownInterval) clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+            remaining--;
+            if(remaining>=0) countdownDisplay.innerText = `${remaining} s`;
+            else { clearInterval(countdownInterval); countdownDisplay.innerText = `¡AHORA!`; }
+        }, 1000);
         alertOverlay.classList.add('active');
-        if (navigator.vibrate) navigator.vibrate([2000]);
+        if(navigator.vibrate) navigator.vibrate([2000]);
         await playLoudAlarm();
         setTimeout(() => closeAlert(), 30000);
     }
+    function closeAlert() {
+        if(countdownInterval) clearInterval(countdownInterval);
+        alertOverlay.classList.remove('active');
+        alertActive = false;
+        if(navigator.vibrate) navigator.vibrate(0);
+        stopAlarm();
+        realTimeInfoSpan.innerText = "";
+    }
+    shareAlertBtn.addEventListener('click', () => {
+        if(!alertActive) return;
+        const text = `⚠️ ALERTA SÍSMICA EduSismos\n${alertMagnitudeSpan.innerText}\n${zoneAlertSpan.innerText}\n¡Protéjase!`;
+        if(navigator.share) navigator.share({title:'Alerta Sísmica', text});
+        else alert("Copia: "+text);
+    });
 
-    function closeAlert() { if(countdownInterval) clearInterval(countdownInterval); alertOverlay.classList.remove('active'); alertActive=false; if(navigator.vibrate) navigator.vibrate(0); stopAlarm(); realTimeInfoSpan.innerText=""; }
-    function shareCurrentAlert() { if(!alertActive) return; const text = `⚠️ ALERTA SÍSMICA EduSismos\n${alertMagnitudeSpan.innerText}\n${zoneAlertSpan.innerText}\n¡Protéjase!`; if(navigator.share) navigator.share({title:'Alerta Sísmica', text}); else alert("Copia: "+text); }
-    shareAlertBtn.addEventListener('click', shareCurrentAlert);
-
-    async function fetchRealEarthquakes() { /* original, pero resumido */ }
-    function startRealMonitor() { /* original */ }
-    function stopRealMonitor() { /* original */ }
+    // ==================== MONITOREO REAL USGS ====================
+    async function fetchRealEarthquakes() {
+        if(!realMonitorToggle.checked) return;
+        try {
+            const url = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=" + new Date(Date.now()-30*60*1000).toISOString() + "&minmagnitude=4.0&region=México&latitude=23.6345&longitude=-102.5528&maxradiuskm=1500";
+            const response = await fetch(url);
+            const data = await response.json();
+            if(data.features && data.features.length>0) {
+                const quake = data.features[0];
+                const props = quake.properties;
+                const coords = quake.geometry.coordinates;
+                const mag = props.mag;
+                const place = props.place;
+                const id = props.code;
+                if(id !== lastRealQuakeId && mag >= 4.5) {
+                    lastRealQuakeId = id;
+                    let zoneName = "México";
+                    const lat = coords[1];
+                    const lng = coords[0];
+                    for(let z of seismicZones) {
+                        const dist = Math.hypot(lat-z.lat, lng-z.lng);
+                        if(dist<5) zoneName = z.name;
+                    }
+                    lastRealQuakeSpan.innerHTML = `Último sismo real: M${mag.toFixed(1)} - ${place} (${new Date(props.time).toLocaleTimeString()})`;
+                    const eta = Math.floor(Math.random()*15)+8;
+                    await triggerEarthquake(mag, zoneName, eta, coords[1], coords[0], true, `Sismo real detectado por USGS • ${place}`);
+                } else {
+                    lastRealQuakeSpan.innerHTML = `Último sismo real: ${props.place || "ninguno reciente"}`;
+                }
+            } else {
+                lastRealQuakeSpan.innerHTML = "Último sismo real: ninguno reciente (mag>=4.5)";
+            }
+        } catch(e) {
+            console.error(e);
+            lastRealQuakeSpan.innerHTML = "Error al consultar sismos reales";
+        }
+    }
+    function startRealMonitor() {
+        if(realMonitorInterval) clearInterval(realMonitorInterval);
+        fetchRealEarthquakes();
+        realMonitorInterval = setInterval(fetchRealEarthquakes, 30000);
+        monitorLed.className = "status-led real";
+        monitorStatusSpan.innerText = "Monitoreo real activo";
+    }
+    function stopRealMonitor() {
+        if(realMonitorInterval) clearInterval(realMonitorInterval);
+        monitorLed.className = "status-led";
+        monitorStatusSpan.innerText = "Monitoreo real desactivado";
+    }
     realMonitorToggle.addEventListener('change', (e) => e.target.checked ? startRealMonitor() : stopRealMonitor());
     testRealApiBtn.addEventListener('click', async () => { await fetchRealEarthquakes(); alert("Conexión USGS probada."); });
 
-    function loadHistory() { const stored = localStorage.getItem('edusismos_history'); if(stored) historyEvents = JSON.parse(stored); renderHistory(); updateChart(); }
+    // ==================== HISTORIAL ====================
+    function loadHistory() {
+        const stored = localStorage.getItem('edusismos_history');
+        if(stored) { try { historyEvents = JSON.parse(stored); } catch(e){} }
+        renderHistory();
+        updateChart();
+    }
     function saveHistory() { localStorage.setItem('edusismos_history', JSON.stringify(historyEvents.slice(0,20))); renderHistory(); updateChart(); }
-    function renderHistory() { if(!historyEvents.length) historyContainer.innerHTML = '<div style="text-align:center;">Sin eventos</div>'; else historyContainer.innerHTML = historyEvents.slice(0,10).map(ev => `<div class="history-item"><div><span style="color:#ff8a5c;">M${ev.magnitude.toFixed(1)}</span> ${ev.isReal ? '<span class="real-quake-badge">REAL</span>' : ''}<br><span style="font-size:0.7rem;">${new Date(ev.timestamp).toLocaleTimeString()}</span></div><div>${ev.zone.split(' ')[0]}<br><span style="font-size:0.7rem;">+${ev.eta}s</span></div></div>`).join(''); }
-    function updateChart() { if(chartInstance) chartInstance.destroy(); const ctx = magnitudeChartCanvas.getContext('2d'); chartInstance = new Chart(ctx, { type:'line', data:{ labels: historyEvents.slice(0,7).map((_,i)=>`#${i+1}`).reverse(), datasets:[{ label:'Magnitud', data: historyEvents.slice(0,7).map(ev=>ev.magnitude).reverse(), borderColor:'#ff8a5c', fill:true, backgroundColor:'rgba(255,138,92,0.1)' }] }, options:{ responsive:true, maintainAspectRatio:true, scales:{ y:{ min:0, max:8 } } } }); }
+    function renderHistory() {
+        if(!historyEvents.length) historyContainer.innerHTML = '<div style="text-align:center;">Sin eventos</div>';
+        else historyContainer.innerHTML = historyEvents.slice(0,10).map(ev => `<div class="history-item"><div><span style="color:#ff8a5c;">M${ev.magnitude.toFixed(1)}</span> ${ev.isReal ? '<span style="background:#ff8800; color:#000; border-radius:12px; padding:2px 6px; font-size:0.7rem;">REAL</span>' : ''}<br><span style="font-size:0.7rem;">${new Date(ev.timestamp).toLocaleTimeString()}</span></div><div>${ev.zone.split(' ')[0]}<br><span style="font-size:0.7rem;">+${ev.eta}s</span></div></div>`).join('');
+    }
+    function updateChart() {
+        if(chartInstance) chartInstance.destroy();
+        const ctx = magnitudeChartCanvas.getContext('2d');
+        chartInstance = new Chart(ctx, { type:'line', data:{ labels: historyEvents.slice(0,7).map((_,i)=>`#${i+1}`).reverse(), datasets:[{ label:'Magnitud', data: historyEvents.slice(0,7).map(ev=>ev.magnitude).reverse(), borderColor:'#ff8a5c', fill:true, backgroundColor:'rgba(255,138,92,0.1)' }] }, options:{ responsive:true, maintainAspectRatio:true, scales:{ y:{ min:0, max:8, ticks:{ color:'#ccc' } }, x:{ ticks:{ color:'#ccc' } } }, plugins:{ legend:{ labels:{ color:'#ccc' } } } } });
+    }
     clearHistoryBtn.addEventListener('click', () => { if(confirm('Borrar historial?')){ historyEvents=[]; saveHistory(); } });
 
-    function updateNextEarthquakeDisplay() { const elapsed = (Date.now()-simulationStartTime)/1000; let next = scheduledEarthquakes.find(eq => eq.time > elapsed); if(!next && scheduledEarthquakes.length) { const last = scheduledEarthquakes[scheduledEarthquakes.length-1]; if(elapsed - last.time > 40) simulationStartTime = Date.now() - (scheduledEarthquakes[0].time - 5); next = scheduledEarthquakes[0]; } if(next) { const timeLeft = next.time - elapsed; nextMagnitudeSpan.innerText = `M${next.magnitude.toFixed(1)}`; nextTimerSpan.innerText = timeLeft>0? `en ${Math.ceil(timeLeft)} s` : `inminente`; nextZoneSpan.innerText = `📍 ${next.zone.split(' ')[0]}`; } else { nextMagnitudeSpan.innerText = 'M--'; nextTimerSpan.innerText = '---'; } }
-    function startAutoSimulation() { if(autoSimInterval) clearInterval(autoSimInterval); simulationStartTime = Date.now(); autoSimInterval = setInterval(() => { if(!autoSimToggle.checked) return; const elapsed = (Date.now()-simulationStartTime)/1000; const due = scheduledEarthquakes.find(eq => Math.abs(eq.time - elapsed) < 1.2 && (Date.now()-lastTriggeredTime)>20000); if(due && !alertActive) { lastTriggeredTime=Date.now(); triggerEarthquake(due.magnitude, due.zone, due.eta, due.lat, due.lng, false); } updateNextEarthquakeDisplay(); }, 200); }
+    // ==================== SIMULADOR EDUCATIVO ====================
+    function updateNextEarthquakeDisplay() {
+        const elapsed = (Date.now()-simulationStartTime)/1000;
+        let next = scheduledEarthquakes.find(eq => eq.time > elapsed);
+        if(!next && scheduledEarthquakes.length) {
+            const last = scheduledEarthquakes[scheduledEarthquakes.length-1];
+            if(elapsed - last.time > 40) simulationStartTime = Date.now() - (scheduledEarthquakes[0].time - 5);
+            next = scheduledEarthquakes[0];
+        }
+        if(next) {
+            const timeLeft = next.time - elapsed;
+            nextMagnitudeSpan.innerText = `M${next.magnitude.toFixed(1)}`;
+            nextTimerSpan.innerText = timeLeft>0 ? `en ${Math.ceil(timeLeft)} s` : `inminente`;
+            nextZoneSpan.innerText = `📍 ${next.zone.split(' ')[0]}`;
+        } else { nextMagnitudeSpan.innerText = 'M--'; nextTimerSpan.innerText = '---'; }
+    }
+    function startAutoSimulation() {
+        if(autoSimInterval) clearInterval(autoSimInterval);
+        simulationStartTime = Date.now();
+        autoSimInterval = setInterval(() => {
+            if(!autoSimToggle.checked) return;
+            const elapsed = (Date.now()-simulationStartTime)/1000;
+            const due = scheduledEarthquakes.find(eq => Math.abs(eq.time - elapsed) < 1.2 && (Date.now()-lastTriggeredTime)>20000);
+            if(due && !alertActive) {
+                lastTriggeredTime = Date.now();
+                triggerEarthquake(due.magnitude, due.zone, due.eta, due.lat, due.lng, false);
+            }
+            updateNextEarthquakeDisplay();
+        }, 200);
+    }
     autoSimToggle.addEventListener('change', (e) => e.target.checked ? startAutoSimulation() : (autoSimInterval && clearInterval(autoSimInterval)));
-    manualTestBtn.addEventListener('click', () => { if(alertActive) return; const randZone = seismicZones[Math.floor(Math.random()*seismicZones.length)]; const mag = (Math.random()*5+3.5).toFixed(1); const eta = Math.floor(Math.random()*12)+6; triggerEarthquake(parseFloat(mag), randZone.name, eta, randZone.lat, randZone.lng, false); });
-    testAlarmBtn.addEventListener('click', async () => { if(alertActive) return; alertActive=true; await playLoudAlarm(); setTimeout(()=>{stopAlarm();alertActive=false;},10000); });
+    manualTestBtn.addEventListener('click', () => {
+        if(alertActive) return;
+        const randZone = seismicZones[Math.floor(Math.random()*seismicZones.length)];
+        const mag = (Math.random()*5+3.5).toFixed(1);
+        const eta = Math.floor(Math.random()*12)+6;
+        triggerEarthquake(parseFloat(mag), randZone.name, eta, randZone.lat, randZone.lng, false);
+    });
+    testAlarmBtn.addEventListener('click', async () => {
+        if(alertActive) return;
+        alertActive = true;
+        await playLoudAlarm();
+        setTimeout(() => { stopAlarm(); alertActive=false; }, 10000);
+    });
     customMagSlider.addEventListener('input', () => customMagValue.innerText = `M${parseFloat(customMagSlider.value).toFixed(1)}`);
     customEtaSlider.addEventListener('input', () => customEtaValue.innerText = `${customEtaSlider.value} s`);
-    triggerCustomBtn.addEventListener('click', () => { if(alertActive) return; const mag = parseFloat(customMagSlider.value); const eta = parseInt(customEtaSlider.value); const zoneName = customZoneSelect.value; const zoneObj = seismicZones.find(z => zoneName.includes(z.name.split(' ')[0])) || seismicZones[0]; triggerEarthquake(mag, zoneName, eta, zoneObj.lat, zoneObj.lng, false); });
+    triggerCustomBtn.addEventListener('click', () => {
+        if(alertActive) return;
+        const mag = parseFloat(customMagSlider.value);
+        const eta = parseInt(customEtaSlider.value);
+        const zoneName = customZoneSelect.value;
+        const zoneObj = seismicZones.find(z => zoneName.includes(z.name.split(' ')[0])) || seismicZones[0];
+        triggerEarthquake(mag, zoneName, eta, zoneObj.lat, zoneObj.lng, false);
+    });
+    function initMap() {
+        const map = L.map('map').setView([23.6345, -102.5528], 5);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OSM' }).addTo(map);
+        seismicZones.forEach(z => {
+            L.circleMarker([z.lat, z.lng], { radius: 35, color: z.color, weight: 2, fillOpacity: 0.3 }).addTo(map).bindPopup(`<b>${z.name}</b><br>Riesgo: ${z.risk}`);
+        });
+        L.circle([19.4326, -99.1332], { radius: 80000, color: '#ff4d4d', weight: 1, fillOpacity: 0.1 }).addTo(map).bindPopup("CDMX - Alerta prioritaria");
+    }
 
-    function initMap() { const map = L.map('map').setView([23.6345, -102.5528], 5); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OSM' }).addTo(map); seismicZones.forEach(z => { L.circleMarker([z.lat, z.lng], { radius: 35, color: z.color, weight: 2, fillOpacity: 0.3 }).addTo(map).bindPopup(`<b>${z.name}</b><br>Riesgo: ${z.risk}`); }); L.circle([19.4326, -99.1332], { radius: 80000, color: '#ff4d4d', weight: 1, fillOpacity: 0.1 }).addTo(map).bindPopup("CDMX - Alerta prioritaria"); }
-
-    // ==================== 2. MÓDULO DE EMERGENCIAS – CONTACTOS Y ENVÍO DE UBICACIÓN ====================
+    // ==================== EMERGENCIAS: CONTACTOS Y UBICACIÓN ====================
     let emergencyContacts = [];
     const contactsListDiv = document.getElementById('contactsList');
     const contactNameInput = document.getElementById('contactName');
@@ -375,7 +601,7 @@
     }
     function renderContacts() {
         if(!contactsListDiv) return;
-        if(emergencyContacts.length === 0) {
+        if(emergencyContacts.length===0) {
             contactsListDiv.innerHTML = '<div class="small-note">No hay contactos guardados.</div>';
             return;
         }
@@ -385,7 +611,6 @@
                 <button class="delete-contact" data-idx="${idx}">Eliminar</button>
             </div>
         `).join('');
-        // Añadir evento de clic a cada contacto para enviar alerta inmediata
         document.querySelectorAll('.contact-item').forEach(el => {
             el.addEventListener('click', (e) => {
                 if(e.target.classList.contains('delete-contact')) return;
@@ -393,7 +618,6 @@
                 if(phone) sendLocationToNumber(phone);
             });
         });
-        // Eventos de eliminación
         document.querySelectorAll('.delete-contact').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -412,8 +636,6 @@
         contactNameInput.value = '';
         contactPhoneInput.value = '';
     });
-
-    // Función para obtener ubicación actual y enviar a un número específico
     function sendLocationToNumber(phoneNumber) {
         if(!phoneNumber) return;
         if(!navigator.geolocation) {
@@ -436,10 +658,8 @@
             { enableHighAccuracy: true, timeout: 10000 }
         );
     }
-
-    // Botón de pánico inmediato: envía a TODOS los contactos guardados
     panicButton.addEventListener('click', () => {
-        if(emergencyContacts.length === 0) {
+        if(emergencyContacts.length===0) {
             alert("No hay contactos guardados. Agrega al menos uno.");
             return;
         }
@@ -447,15 +667,13 @@
             sendLocationToNumber(contact.phone);
         });
     });
-
-    // Enviar a un número específico ingresado en el campo
     sendToSingleBtn.addEventListener('click', () => {
         const phone = emergencySingleContact.value.trim();
-        if(!phone) { alert("Ingresa un número de teléfono (formato internacional, ej. 5215512345678)."); return; }
+        if(!phone) { alert("Ingresa un número."); return; }
         sendLocationToNumber(phone);
     });
 
-    // ==================== 3. MONITOREO PERIÓDICO DE UBICACIÓN (8 horas, cada 5 min) ====================
+    // ==================== MONITOREO PERIÓDICO 8 HORAS ====================
     let geoMonitorInterval = null;
     let geoMonitorEndTime = null;
     let geoMonitorTimerInterval = null;
@@ -473,25 +691,21 @@
         if(geoMonitorTimerSpan) geoMonitorTimerSpan.innerText = '--:--:--';
         if(geoMonitorStatusSpan) geoMonitorStatusSpan.innerHTML = '<span>Estado: Inactivo</span><br><span class="timer">--:--:--</span>';
         if(geoMonitorLog) {
-            const logEntry = document.createElement('div');
-            logEntry.textContent = `[${new Date().toLocaleTimeString()}] Monitoreo detenido.`;
-            geoMonitorLog.appendChild(logEntry);
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] Monitoreo detenido.`;
+            geoMonitorLog.appendChild(entry);
         }
     }
-
     function requestAndSendLocationPeriodic() {
-        if(emergencyContacts.length === 0) {
+        if(emergencyContacts.length===0) {
             if(geoMonitorLog) {
-                const logEntry = document.createElement('div');
-                logEntry.textContent = `[${new Date().toLocaleTimeString()}] No hay contactos para enviar.`;
-                geoMonitorLog.appendChild(logEntry);
+                const entry = document.createElement('div');
+                entry.textContent = `[${new Date().toLocaleTimeString()}] No hay contactos para enviar.`;
+                geoMonitorLog.appendChild(entry);
             }
             return;
         }
-        if(!navigator.geolocation) {
-            alert("Geolocalización no soportada.");
-            return;
-        }
+        if(!navigator.geolocation) return;
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude, accuracy } = position.coords;
@@ -503,32 +717,31 @@
                     window.open(waUrl, '_blank');
                 }
                 if(geoMonitorLog) {
-                    const logEntry = document.createElement('div');
-                    logEntry.textContent = `[${new Date().toLocaleTimeString()}] Ubicación enviada a ${emergencyContacts.length} contacto(s).`;
-                    geoMonitorLog.appendChild(logEntry);
+                    const entry = document.createElement('div');
+                    entry.textContent = `[${new Date().toLocaleTimeString()}] Ubicación enviada a ${emergencyContacts.length} contacto(s).`;
+                    geoMonitorLog.appendChild(entry);
                     geoMonitorLog.scrollTop = geoMonitorLog.scrollHeight;
                 }
             },
             (error) => {
                 if(geoMonitorLog) {
-                    const logEntry = document.createElement('div');
-                    logEntry.textContent = `[${new Date().toLocaleTimeString()}] Error geolocalización: ${error.message}`;
-                    geoMonitorLog.appendChild(logEntry);
+                    const entry = document.createElement('div');
+                    entry.textContent = `[${new Date().toLocaleTimeString()}] Error geolocalización: ${error.message}`;
+                    geoMonitorLog.appendChild(entry);
                 }
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
     }
-
     function updateGeoMonitorTimerDisplay() {
         if(!geoMonitorEndTime) return;
         const remaining = Math.max(0, geoMonitorEndTime - Date.now());
         if(remaining <= 0) {
             stopGeoMonitor();
             if(geoMonitorLog) {
-                const logEntry = document.createElement('div');
-                logEntry.textContent = `[${new Date().toLocaleTimeString()}] Monitoreo de 8 horas finalizado.`;
-                geoMonitorLog.appendChild(logEntry);
+                const entry = document.createElement('div');
+                entry.textContent = `[${new Date().toLocaleTimeString()}] Monitoreo de 8 horas finalizado.`;
+                geoMonitorLog.appendChild(entry);
             }
             return;
         }
@@ -540,13 +753,12 @@
             geoMonitorStatusSpan.innerHTML = `<span>Estado: Activo (envía cada 5 min)</span><br><span class="timer">${geoMonitorTimerSpan.innerText}</span>`;
         }
     }
-
     function startGeoMonitor() {
         if(geoMonitorInterval) {
             alert("Ya hay un monitoreo activo.");
             return;
         }
-        if(emergencyContacts.length === 0) {
+        if(emergencyContacts.length===0) {
             alert("Agrega al menos un contacto de emergencia.");
             return;
         }
@@ -568,15 +780,15 @@
         geoMonitorTimerInterval = setInterval(() => updateGeoMonitorTimerDisplay(), 1000);
         if(geoMonitorLog) {
             geoMonitorLog.innerHTML = '';
-            const logEntry = document.createElement('div');
-            logEntry.textContent = `[${new Date().toLocaleTimeString()}] Monitoreo iniciado por 8 horas. Se enviará ubicación cada 5 minutos.`;
-            geoMonitorLog.appendChild(logEntry);
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] Monitoreo iniciado por 8 horas. Se enviará ubicación cada 5 minutos.`;
+            geoMonitorLog.appendChild(entry);
         }
     }
     startGeoBtn.addEventListener('click', startGeoMonitor);
     stopGeoBtn.addEventListener('click', stopGeoMonitor);
 
-    // ==================== 4. INICIALIZACIÓN GENERAL ====================
+    // ==================== INICIALIZACIÓN ====================
     function initAll() {
         loadHistory();
         initMap();
@@ -584,7 +796,6 @@
         startRealMonitor();
         alertOverlay.addEventListener('click', (e) => { if(e.target === alertOverlay) closeAlert(); });
         loadContacts();
-        // Navegación
         const navItems = document.querySelectorAll('.nav-item');
         const pages = {
             home: document.getElementById('homePage'),
