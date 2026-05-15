@@ -58,6 +58,7 @@
         .status-led { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: #4caf50; box-shadow: 0 0 6px #4caf50; margin-right: 6px; }
         input, select { background: #2a2a3a; border: none; padding: 10px; border-radius: 30px; color: white; width: 100%; margin-top: 5px; }
         .small-note { font-size: 0.7rem; color: #aaa; margin-top: 8px; }
+        .popup-warning { color: #ffaa00; font-size: 0.75rem; margin-top: 5px; }
         @media (max-width: 480px) { .magnitude-big { font-size: 4rem; } .countdown-number { font-size: 3rem; } }
     </style>
 </head>
@@ -178,6 +179,7 @@
         </div>
         <div id="contactsList"></div>
         <div class="small-note">💡 Haz clic sobre cualquier contacto para enviar alerta inmediata con tu ubicación actual.</div>
+        <div class="popup-warning">⚠️ Si tu navegador bloquea las ventanas emergentes, permite que este sitio abra ventanas para que los mensajes de WhatsApp se envíen correctamente.</div>
     </div>
 
     <div class="card">
@@ -231,7 +233,27 @@
 </div>
 
 <script>
-    // ==================== CONFIGURACIÓN SÍSMICA ====================
+    // ==================== VERIFICACIÓN DE PERMISOS ====================
+    function checkGeolocationPermission() {
+        if (!navigator.geolocation) {
+            alert("Tu navegador no soporta geolocalización. No podrás enviar tu ubicación.");
+            return false;
+        }
+        return true;
+    }
+
+    // Función para abrir WhatsApp gestionando el bloqueo de pop-ups
+    function openWhatsApp(phoneNumber, message) {
+        if (!phoneNumber) return;
+        const encodedMsg = encodeURIComponent(message);
+        const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMsg}`;
+        const newWindow = window.open(waUrl, '_blank');
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+            alert("⚠️ El navegador bloqueó la ventana emergente. Por favor, permite las ventanas emergentes para este sitio o haz clic en el enlace manualmente: " + waUrl);
+        }
+    }
+
+    // ==================== CONFIGURACIÓN SÍSMICA (igual que antes, con la función openWhatsApp para envíos) ====================
     const seismicZones = [
         { name: "Pacífico (Guerrero, Oaxaca, Chiapas)", lat: 16.5, lng: -98.5, risk: "Alta", color: "#d32f2f" },
         { name: "Eje Volcánico (CDMX, Puebla, Morelos)", lat: 19.4, lng: -99.1, risk: "Alta", color: "#ff8c42" },
@@ -408,7 +430,6 @@
         }
     }
 
-    // ==================== ALERTA PRINCIPAL ====================
     async function triggerEarthquake(magnitude, zoneName, etaSeconds, lat, lng, isReal = false, realTimeInfo = "") {
         if(alertActive) return;
         alertActive = true;
@@ -446,7 +467,6 @@
         else alert("Copia: "+text);
     });
 
-    // ==================== MONITOREO REAL USGS ====================
     async function fetchRealEarthquakes() {
         if(!realMonitorToggle.checked) return;
         try {
@@ -498,7 +518,6 @@
     realMonitorToggle.addEventListener('change', (e) => e.target.checked ? startRealMonitor() : stopRealMonitor());
     testRealApiBtn.addEventListener('click', async () => { await fetchRealEarthquakes(); alert("Conexión USGS probada."); });
 
-    // ==================== HISTORIAL ====================
     function loadHistory() {
         const stored = localStorage.getItem('edusismos_history');
         if(stored) { try { historyEvents = JSON.parse(stored); } catch(e){} }
@@ -517,7 +536,6 @@
     }
     clearHistoryBtn.addEventListener('click', () => { if(confirm('Borrar historial?')){ historyEvents=[]; saveHistory(); } });
 
-    // ==================== SIMULADOR EDUCATIVO ====================
     function updateNextEarthquakeDisplay() {
         const elapsed = (Date.now()-simulationStartTime)/1000;
         let next = scheduledEarthquakes.find(eq => eq.time > elapsed);
@@ -580,7 +598,7 @@
         L.circle([19.4326, -99.1332], { radius: 80000, color: '#ff4d4d', weight: 1, fillOpacity: 0.1 }).addTo(map).bindPopup("CDMX - Alerta prioritaria");
     }
 
-    // ==================== EMERGENCIAS: CONTACTOS Y UBICACIÓN ====================
+    // ==================== EMERGENCIAS: CONTACTOS Y UBICACIÓN CON MANEJO DE PERMISOS ====================
     let emergencyContacts = [];
     const contactsListDiv = document.getElementById('contactsList');
     const contactNameInput = document.getElementById('contactName');
@@ -631,33 +649,35 @@
         const name = contactNameInput.value.trim();
         const phone = contactPhoneInput.value.trim();
         if(!name || !phone) { alert("Completa nombre y teléfono."); return; }
+        if (!phone.match(/^\d+$/)) { alert("El teléfono debe contener solo números, incluyendo código país (ej. 5215512345678)."); return; }
         emergencyContacts.push({ name, phone });
         saveContacts();
         contactNameInput.value = '';
         contactPhoneInput.value = '';
     });
+
     function sendLocationToNumber(phoneNumber) {
         if(!phoneNumber) return;
-        if(!navigator.geolocation) {
-            alert("Geolocalización no soportada.");
-            return;
-        }
+        if(!checkGeolocationPermission()) return;
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude, accuracy } = position.coords;
                 const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
                 const message = `🚨 ALERTA SÍSMICA - EMERGENCIA 🚨\nMi ubicación actual:\n${mapsLink}\nPrecisión: ±${Math.round(accuracy)} m\nHora: ${new Date().toLocaleString()}\nPor favor, contacta a los servicios de emergencia si es necesario.`;
-                const encodedMsg = encodeURIComponent(message);
-                const waUrl = `https://wa.me/${phoneNumber}?text=${encodedMsg}`;
-                window.open(waUrl, '_blank');
+                openWhatsApp(phoneNumber, message);
             },
             (error) => {
                 console.error(error);
-                alert("No se pudo obtener tu ubicación. Verifica los permisos.");
+                let errorMsg = "No se pudo obtener tu ubicación. ";
+                if (error.code === 1) errorMsg += "Permiso denegado. Habilita la geolocalización en la configuración de tu navegador.";
+                else if (error.code === 2) errorMsg += "Ubicación no disponible. Intenta de nuevo.";
+                else errorMsg += "Error desconocido.";
+                alert(errorMsg);
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 15000 }
         );
     }
+
     panicButton.addEventListener('click', () => {
         if(emergencyContacts.length===0) {
             alert("No hay contactos guardados. Agrega al menos uno.");
@@ -670,6 +690,7 @@
     sendToSingleBtn.addEventListener('click', () => {
         const phone = emergencySingleContact.value.trim();
         if(!phone) { alert("Ingresa un número."); return; }
+        if (!phone.match(/^\d+$/)) { alert("El número debe contener solo dígitos."); return; }
         sendLocationToNumber(phone);
     });
 
@@ -705,16 +726,14 @@
             }
             return;
         }
-        if(!navigator.geolocation) return;
+        if(!checkGeolocationPermission()) return;
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude, accuracy } = position.coords;
                 const mapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
                 const message = `⚠️ ALERTA SÍSMICA - MONITOREO PERIÓDICO ⚠️\nMi ubicación:\n${mapsLink}\nPrecisión: ±${Math.round(accuracy)} m\nHora: ${new Date().toLocaleString()}\nEste mensaje se envía cada 5 minutos durante 8 horas.`;
-                const encodedMsg = encodeURIComponent(message);
                 for(let contact of emergencyContacts) {
-                    const waUrl = `https://wa.me/${contact.phone}?text=${encodedMsg}`;
-                    window.open(waUrl, '_blank');
+                    openWhatsApp(contact.phone, message);
                 }
                 if(geoMonitorLog) {
                     const entry = document.createElement('div');
@@ -730,7 +749,7 @@
                     geoMonitorLog.appendChild(entry);
                 }
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 15000 }
         );
     }
     function updateGeoMonitorTimerDisplay() {
@@ -762,10 +781,7 @@
             alert("Agrega al menos un contacto de emergencia.");
             return;
         }
-        if(!navigator.geolocation) {
-            alert("Geolocalización no disponible.");
-            return;
-        }
+        if(!checkGeolocationPermission()) return;
         const duration = 8 * 60 * 60 * 1000;
         geoMonitorEndTime = Date.now() + duration;
         requestAndSendLocationPeriodic();
@@ -796,6 +812,7 @@
         startRealMonitor();
         alertOverlay.addEventListener('click', (e) => { if(e.target === alertOverlay) closeAlert(); });
         loadContacts();
+        // Navegación
         const navItems = document.querySelectorAll('.nav-item');
         const pages = {
             home: document.getElementById('homePage'),
@@ -812,6 +829,14 @@
         };
         navItems.forEach(item => item.addEventListener('click', () => setActivePage(item.dataset.page)));
         setActivePage('home');
+        // Verificar si el navegador bloquea pop-ups
+        const testWin = window.open('about:blank', '_blank');
+        if (!testWin || testWin.closed || typeof testWin.closed === 'undefined') {
+            const warningDiv = document.querySelector('.popup-warning');
+            if(warningDiv) warningDiv.style.display = 'block';
+        } else {
+            testWin.close();
+        }
     }
     window.addEventListener('DOMContentLoaded', initAll);
 </script>
