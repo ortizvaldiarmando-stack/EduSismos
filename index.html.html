@@ -59,7 +59,6 @@
         input, select { background: #2a2a3a; border: none; padding: 10px; border-radius: 30px; color: white; width: 100%; margin-top: 5px; }
         .small-note { font-size: 0.7rem; color: #aaa; margin-top: 8px; }
         .popup-warning { color: #ffaa00; font-size: 0.75rem; margin-top: 5px; }
-        /* Estilo para la sección de créditos */
         .credits-section { margin-bottom: 15px; }
         .credits-section h4 { color: #ffaa66; margin-bottom: 8px; font-size: 1rem; border-left: 3px solid #ff8a5c; padding-left: 8px; }
         .team-member { background: #252540; border-radius: 20px; padding: 8px 12px; margin-bottom: 6px; }
@@ -223,7 +222,7 @@
     </div>
 </div>
 
-<!-- Página Créditos (con la palabra "Desarrolladores" agregada) -->
+<!-- Página Créditos -->
 <div id="creditsPage" class="page">
     <div class="card">
         <div class="card-title">🏢 EduSismos 2026</div>
@@ -245,6 +244,12 @@
 </div>
 
 <script>
+    // ==================== 0. COORDENADAS DEL TECNOLÓGICO SUPERIOR DE LA COSTA CHICA ====================
+    // Ubicación: Ometepec, Guerrero
+    const TECH_LAT = 16.685;    // Latitud aproximada
+    const TECH_LNG = -98.405;   // Longitud aproximada
+    const TECH_NAME = "Tecnológico Superior de la Costa Chica, Ometepec, Guerrero";
+
     // ==================== 1. SISMOS REALES (USGS) Y SIMULADOR ====================
     const seismicZones = [
         { name: "Pacífico (Guerrero, Oaxaca, Chiapas)", lat: 16.5, lng: -98.5, risk: "Alta", color: "#d32f2f" },
@@ -455,7 +460,7 @@
     triggerCustomBtn.addEventListener('click', () => { if (alertActive) return; const mag = parseFloat(customMagSlider.value); const eta = parseInt(customEtaSlider.value); const zoneName = customZoneSelect.value; const zoneObj = seismicZones.find(z => zoneName.includes(z.name.split(' ')[0])) || seismicZones[0]; triggerEarthquake(mag, zoneName, eta, zoneObj.lat, zoneObj.lng, false); });
     function initMap() { const map = L.map('map').setView([23.6345, -102.5528], 5); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OSM' }).addTo(map); seismicZones.forEach(z => { L.circleMarker([z.lat, z.lng], { radius: 35, color: z.color, weight: 2, fillOpacity: 0.3 }).addTo(map).bindPopup(`<b>${z.name}</b><br>Riesgo: ${z.risk}`); }); L.circle([19.4326, -99.1332], { radius: 80000, color: '#ff4d4d', weight: 1, fillOpacity: 0.1 }).addTo(map).bindPopup("CDMX - Alerta prioritaria"); }
 
-    // ==================== 2. CONTACTOS DE EMERGENCIA Y ENVÍO POR WHATSAPP ====================
+    // ==================== 2. CONTACTOS DE EMERGENCIA Y ENVÍO POR WHATSAPP (UBICACIÓN DEL TECNOLÓGICO) ====================
     let emergencyContacts = [];
     const contactsListDiv = document.getElementById('contactsList');
     const contactNameInput = document.getElementById('contactName');
@@ -494,14 +499,11 @@
         contactPhoneInput.value = '';
     });
 
-    // Enviar ubicación (simulada por coordenadas fijas, pero puedes cambiarlo a geolocalización real)
+    // Enviar ubicación del Tecnológico Superior de la Costa Chica (coordenadas fijas)
     function sendLocationToNumber(phoneNumber) {
         if (!phoneNumber) return;
-        // Coordenadas de ejemplo (Zócalo CDMX). En una versión real, usa navigator.geolocation.
-        const lat = 19.4326;
-        const lng = -99.1332;
-        const mapsLink = `https://www.google.com/maps?q=${lat},${lng}&z=18`;
-        const message = `🚨 ALERTA SÍSMICA - EMERGENCIA 🚨\nMi ubicación actual:\n${mapsLink}\nHora: ${new Date().toLocaleString()}\nPor favor, contacta a los servicios de emergencia si es necesario.`;
+        const mapsLink = `https://www.google.com/maps?q=${TECH_LAT},${TECH_LNG}&z=17`;
+        const message = `🚨 ALERTA SÍSMICA - EMERGENCIA 🚨\nUbicación: ${TECH_NAME}\nEnlace a Google Maps:\n${mapsLink}\nHora: ${new Date().toLocaleString()}\nPor favor, contacta a los servicios de emergencia si es necesario.`;
         openWhatsApp(phoneNumber, message);
     }
     function openWhatsApp(phoneNumber, message) {
@@ -522,7 +524,7 @@
         sendLocationToNumber(phone);
     });
 
-    // ==================== 3. MONITOREO AUTOMÁTICO (8 HORAS, cada 5 min) ====================
+    // ==================== 3. MONITOREO AUTOMÁTICO (8 HORAS, cada 5 min) – misma ubicación fija ====================
     let geoMonitorInterval = null;
     let geoMonitorEndTime = null;
     let geoMonitorTimerInterval = null;
@@ -546,10 +548,8 @@
             if (geoMonitorLog) { const entry = document.createElement('div'); entry.textContent = `[${new Date().toLocaleTimeString()}] No hay contactos para enviar.`; geoMonitorLog.appendChild(entry); }
             return;
         }
-        const lat = 19.4326;
-        const lng = -99.1332;
-        const mapsLink = `https://www.google.com/maps?q=${lat},${lng}&z=18`;
-        const message = `⚠️ ALERTA SÍSMICA - MONITOREO PERIÓDICO ⚠️\nMi ubicación:\n${mapsLink}\nHora: ${new Date().toLocaleString()}\nEste mensaje se envía cada 5 minutos durante 8 horas.`;
+        const mapsLink = `https://www.google.com/maps?q=${TECH_LAT},${TECH_LNG}&z=17`;
+        const message = `⚠️ ALERTA SÍSMICA - MONITOREO PERIÓDICO (cada 5 min) ⚠️\nUbicación fija: ${TECH_NAME}\nEnlace a Google Maps:\n${mapsLink}\nHora: ${new Date().toLocaleString()}\nEste mensaje se envía cada 5 minutos durante 8 horas.`;
         for (let contact of emergencyContacts) openWhatsApp(contact.phone, message);
         if (geoMonitorLog) { const entry = document.createElement('div'); entry.textContent = `[${new Date().toLocaleTimeString()}] Ubicación enviada a ${emergencyContacts.length} contacto(s).`; geoMonitorLog.appendChild(entry); geoMonitorLog.scrollTop = geoMonitorLog.scrollHeight; }
     }
