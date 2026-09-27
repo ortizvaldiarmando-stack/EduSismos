@@ -1,21 +1,14 @@
 {
   "name": "EduSismos 2026",
   "short_name": "EduSismos",
-  "description": "Alerta sísmica real y educativa para México",
-  "start_url": ".",
+  "description": "Alerta sismica, localizacion de personas y educacion sismica.",
+  "start_url": "./index.html",
   "display": "standalone",
-  "theme_color": "#0a0a12",
   "background_color": "#0a0a12",
+  "theme_color": "#0a0a12",
+  "orientation": "portrait",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
