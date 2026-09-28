@@ -437,7 +437,7 @@ async function fetchRealEarthquakes() {
     try {
         const url = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson" +
             "&starttime=" + new Date(Date.now()-7*24*60*60*1000).toISOString() +
-            "&minmagnitude=3.0&region=Mexico&latitude=23.6345&longitude=-102.5528&maxradiuskm=1500";
+            "&minmagnitude=3.0&latitude=23.6345&longitude=-102.5528&maxradiuskm=1500";
         const r = await fetch(url);
         const data = await r.json();
         if (data.features) {
@@ -559,8 +559,8 @@ $('triggerCustomBtn').addEventListener('click', () => {
 function initMap() {
     if (typeof L === 'undefined') return;
     const map = L.map('map').setView([23.6345, -102.5528], 5);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-        { attribution:'&copy; OpenStreetMap' }).addTo(map);
+   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { attribution:'&copy; OpenStreetMap contributors', maxZoom: 19 }).addTo(map);
     ZONAS.forEach(z => {
         L.circleMarker([z.lat, z.lng], { radius:35, color:z.color, weight:2, fillOpacity:.3 })
             .addTo(map).bindPopup(`<b>${z.name}</b><br>Riesgo: ${z.risk}`);
