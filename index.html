@@ -559,8 +559,8 @@ $('triggerCustomBtn').addEventListener('click', () => {
 function initMap() {
     if (typeof L === 'undefined') return;
     const map = L.map('map').setView([23.6345, -102.5528], 5);
-   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    { attribution:'&copy; OpenStreetMap contributors', maxZoom: 19 }).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { attribution:'Tiles &copy; Esri', maxZoom: 18 }).addTo(map);
     ZONAS.forEach(z => {
         L.circleMarker([z.lat, z.lng], { radius:35, color:z.color, weight:2, fillOpacity:.3 })
             .addTo(map).bindPopup(`<b>${z.name}</b><br>Riesgo: ${z.risk}`);
