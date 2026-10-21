@@ -1,4 +1,4 @@
-const CACHE_NAME = 'edusismos-v2';
+const CACHE_NAME = 'edusismos-v3';
 const ASSETS = [
   './',
   './index.html',
